@@ -1,0 +1,76 @@
+
+#ifndef REGION_BASED_COLOR_TRANSFER_H
+#define REGION_BASED_COLOR_TRANSFER_H
+
+#include "cv.h"
+#include "highgui.h"
+#include "Segmentation.h"
+#include <vector>
+
+using namespace std;
+using namespace cv;
+
+
+class RegionBasedColorTransfer
+{
+private:
+
+  //constant values
+  const int number_of_color_type = 9;
+  vector<Vec3f> colorValues;
+
+  Mat source, target;
+  vector<vector<Pixel> > sourceBuffer;
+  vector<vector<Pixel> > targetBuffer;
+  // vector<vector<Pixel> > sourceClassification(number_of_color_type);
+  //vector<vector<Pixel> > targetClassification(number_of_color_type);
+  vector<vector<Pixel> > sourceClassification;
+  vector<vector<Pixel> > targetClassification;
+
+
+  //helper function
+
+  //classify color into different category
+  int classifyColor(const Mat &image, Pixel position) const;
+
+  //find the min color Eclidean basic color
+  int minColorDistance(const Vec3f & value) const;
+
+
+
+public:
+  RegionBasedColorTransfer(char* sourceFile, char* targetFile){
+
+    //init file
+    source = imread(sourceFile);
+    target = imread(targetFile);
+    
+    sourceClassification.reserve(number_of_color_type);
+    targetClassification.reserve(number_of_color_type);
+
+    //read the nine basic color category
+    colorValues.push_back(Vec3f(0,0,0));
+    colorValues.push_back(Vec3f(0,0,100));
+    colorValues.push_back(Vec3f(0,0,50.2));
+    colorValues.push_back(Vec3f(0,100,100));
+    colorValues.push_back(Vec3f(38.82, 100, 100));
+    colorValues.push_back(Vec3f(60,100,100));
+    colorValues.push_back(Vec3f(120,100,50.2));
+    colorValues.push_back(Vec3f(240,100,100));
+    colorValues.push_back(Vec3f(300,100,50.2));
+			  
+  }
+
+
+  void segmentImages()const;
+  void classifyColor();
+  void globallyTransferColor();
+  void correlateSourceAndTargetRegions();
+  void colorTransferCorrespondently();
+  void textureTransferCorrespondently();
+  void process();
+  void showTarget() const;
+  void showSource() const;
+};
+
+#endif
